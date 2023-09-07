@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script src="/js/hls.min.js"></script>
     <script src="/js/DPlayer.min.js"></script>
     <title>VideoPlayerDemo</title>
 </head>
@@ -30,6 +31,13 @@
     <script>
         const dp = new DPlayer({
             container: document.getElementById('dplayer'),
+            live: false,
+            screenshot: true,
+            autoplay: false,
+            preload: 'auto',
+            volume: 0.7,
+            playbackSpeed: [0.5, 0.75, 1, 1.25, 1.5, 2],
+
             video: {
                 url: '',
             },
