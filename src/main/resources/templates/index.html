@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <script src="/js/DPlayer.min.js"></script>
     <title>VideoPlayerDemo</title>
 </head>
 <body>
+
 <div align="center">
     <h1>Video Player Demo</h1>
     <hr/>
@@ -20,10 +22,11 @@
         </select>
     </div>
     <div>
-        <button @click="loadVideoUrl">Load</button>
+        <button type="submit" onclick="loadVideoUrl()">Load</button>
     </div>
     <hr/>
     <div id="dplayer" style="width: 80%"></div>
+
     <script>
         const dp = new DPlayer({
             container: document.getElementById('dplayer'),
@@ -34,14 +37,19 @@
         console.log('dplayer', dp);
 
         function loadVideoUrl() {
-            var url = document.getElementById('url');
-            var transcode = document.getElementById('transcode');
+            var url = document.getElementById('url').value;
+            var transcode = document.getElementById('transcode').value;
             if(!url) return;
             if(!transcode) return;
             console.log('load url: ', url)
             console.log('load transcode enable: ', transcode)
             dp.switchVideo({url: url,});
         }
+
+        // document.getElementById("#loadBtn")
+        //     .addEventListener('click', function () {
+        //         loadVideoUrl();
+        //     }, false);
     </script>
 </div>
 </body>
