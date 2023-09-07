@@ -9,14 +9,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ClassPathStaticUtils {
-    public static Path getTranscodeM3u8Path(String key) {
+
+    public static Path getTranscodePath() {
         File staticFile;
         try {
             staticFile = ResourceUtils.getFile("classpath:static");
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-        Path transcodePath = Path.of(staticFile.toURI()).resolve("transcode");
+        return Path.of(staticFile.toURI()).resolve("transcode");
+    }
+
+    public static Path getTranscodeM3u8Path(String key) {
+        Path transcodePath = getTranscodePath();
         if(Files.notExists(transcodePath)) {
             try {
                 Files.createDirectory(transcodePath);
