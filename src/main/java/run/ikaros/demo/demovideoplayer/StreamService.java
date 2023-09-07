@@ -11,11 +11,11 @@ import java.nio.file.Path;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 
+import static run.ikaros.demo.demovideoplayer.StreamCons.MEDIA_INFO_MAP;
+
 @Slf4j
 @Service
 public class StreamService {
-
-    public static ConcurrentHashMap<String, MediaThread> MEDIA_INFO_MAP = new ConcurrentHashMap<>();
 
     private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
@@ -34,8 +34,8 @@ public class StreamService {
         log.info("will start transcoding for url: {}", url);
         // start media thread
         mediaThread = new MediaThread(md5, url);
-        threadPoolTaskExecutor.execute(mediaThread);
         MEDIA_INFO_MAP.put(md5, mediaThread);
+        threadPoolTaskExecutor.execute(mediaThread);
 
         Path transcodeM3u8Path = ClassPathStaticUtils.getTranscodeM3u8Path(md5);
         try {

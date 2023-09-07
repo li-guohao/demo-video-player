@@ -14,15 +14,16 @@
     <hr/>
     <div>
         <label for="url">Enter your video url: </label>
-        <input type="text" name="url" id="url" required value="http://192.168.2.222:9999/files/2023/7/24/8dc1a899bf0e4710a27a36b68601268a.mkv"/>
+        <input type="text" name="url" id="url" required
+               value="http://192.168.2.222:9999/files/2023/7/24/8dc1a899bf0e4710a27a36b68601268a.mkv"/>
     </div>
-    <!--    <div>-->
-    <!--        <label for="url">Enable transcode: </label>-->
-    <!--        <select name="transcode" id="transcode">-->
-    <!--            <option value="true">Enable</option>-->
-    <!--            <option value="false" selected>Disable</option>-->
-    <!--        </select>-->
-    <!--    </div>-->
+    <div>
+        <label for="url">Enable transcode: </label>
+        <select name="transcode" id="transcode">
+            <option value="true">Enable</option>
+            <option value="false" selected>Disable</option>
+        </select>
+    </div>
     <div>
         <button type="submit" onclick="loadVideoUrl()">Load</button>
     </div>
@@ -43,22 +44,26 @@
 
         function loadVideoUrl() {
             var url = document.getElementById('url').value;
-            // var transcode = document.getElementById('transcode').value;
+            var transcode = document.getElementById('transcode').value;
             if (!url) return;
-            // if(!transcode) return;
+            if(!transcode) return;
             console.log('load url: ', url)
-            // console.log('load transcode enable: ', transcode)
-            dp.switchVideo({url: url,});
+            console.log('load transcode enable: ', transcode)
+            if(transcode) {
+                startTranscoding();
+            } else {
+                dp.switchVideo({url: url,});
+                dp.play();
+            }
         }
 
-        dp.on('error', function () {
-            // alert('load video error')
-            // try transcoding video to hls
-            if(isTranscoding === false) {
+        function startTranscoding() {
+            if (isTranscoding === false) {
+                console.log('request start transcoding')
                 isTranscoding = true;
                 // start video stream transcode
                 var url = dp.video.url;
-                if(!url) {
+                if (!url) {
                     url = document.getElementById('url').value
                 }
                 axios({
@@ -72,15 +77,17 @@
                         document.getElementById('transcodeUrl').value = rspData;
                         // switch dplayer video src
                         dp.video.type = 'hls'
-                        dp.switchVideo({url: rspData,type: 'hls'});
+                        dp.switchVideo({url: rspData, type: 'hls'});
+                        dp.play();
                     });
             }
-        });
-        dp.on('destroy', function () {
+        }
+
+        function closeTranscoding() {
             if (isTranscoding === true) {
                 // close video stream transcode
                 var url = dp.video.url;
-                if(!url) {
+                if (!url) {
                     url = document.getElementById('url').value
                 }
                 console.log('req close hls transcode stream for url: ', url)
@@ -89,7 +96,22 @@
                     url: '/stream/hls/close?url=' + url
                 })
             }
+        }
+
+        dp.on('error', function () {
+            // alert('load video error')
+            // try transcoding video to hls
+            startTranscoding();
         });
+        dp.on('destroy', function () {
+            closeTranscoding();
+        });
+
+        window.addEventListener('beforeunload', function(e) {
+            closeTranscoding();
+            e.preventDefault();
+        });
+
     </script>
 </div>
 </body>

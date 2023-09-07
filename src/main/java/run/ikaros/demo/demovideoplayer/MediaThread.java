@@ -16,6 +16,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import static run.ikaros.demo.demovideoplayer.StreamCons.MEDIA_INFO_MAP;
+
 @Slf4j
 @Getter
 public class MediaThread extends Thread {
@@ -45,7 +47,7 @@ public class MediaThread extends Thread {
     }
 
     public MediaThread createGrabber() {
-        log.info("{} | 创建拉流器……", originalUrl);
+        log.info("创建拉流器…… | {}", originalUrl);
         // 拉流器
         grabber = new FFmpegFrameGrabber(originalUrl);
         // 超时时间(5秒)
@@ -186,7 +188,6 @@ public class MediaThread extends Thread {
                 log.error("{} | 转码操作异常！", originalUrl, e);
             }
             // log.info("{} | 转流操作结束", originalUrl);
-            StreamService.MEDIA_INFO_MAP.remove(key);
         }
     }
 
@@ -195,6 +196,8 @@ public class MediaThread extends Thread {
     }
 
     public void release() {
+        log.info("release media thread for url: {}", url);
+        MEDIA_INFO_MAP.remove(key);
         stopTransform();
         closeGrabber();
         closeRecodeRecorder();
