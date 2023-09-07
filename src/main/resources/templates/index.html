@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <script src="/js/hls.min.js"></script>
     <script src="/js/DPlayer.min.js"></script>
+    <script src="/js/axios.min.js"></script>
     <title>VideoPlayerDemo</title>
 </head>
 <body>
@@ -13,31 +14,27 @@
     <hr/>
     <div>
         <label for="url">Enter your video url: </label>
-        <input type="text" name="url" id="url" required/>
+        <input type="text" name="url" id="url" required value="http://192.168.2.222:9999/files/2023/7/24/8dc1a899bf0e4710a27a36b68601268a.mkv"/>
     </div>
-    <div>
-        <label for="url">Enable transcode: </label>
-        <select name="transcode" id="transcode">
-            <option value="true">Enable</option>
-            <option value="false" selected>Disable</option>
-        </select>
-    </div>
+    <!--    <div>-->
+    <!--        <label for="url">Enable transcode: </label>-->
+    <!--        <select name="transcode" id="transcode">-->
+    <!--            <option value="true">Enable</option>-->
+    <!--            <option value="false" selected>Disable</option>-->
+    <!--        </select>-->
+    <!--    </div>-->
     <div>
         <button type="submit" onclick="loadVideoUrl()">Load</button>
     </div>
     <hr/>
+    <p id="transcodeUrl"></p>
+    <hr/>
     <div id="dplayer" style="width: 80%"></div>
 
     <script>
+        var isTranscoding = false;
         const dp = new DPlayer({
             container: document.getElementById('dplayer'),
-            live: false,
-            screenshot: true,
-            autoplay: false,
-            preload: 'auto',
-            volume: 0.7,
-            playbackSpeed: [0.5, 0.75, 1, 1.25, 1.5, 2],
-
             video: {
                 url: '',
             },
@@ -46,18 +43,53 @@
 
         function loadVideoUrl() {
             var url = document.getElementById('url').value;
-            var transcode = document.getElementById('transcode').value;
-            if(!url) return;
-            if(!transcode) return;
+            // var transcode = document.getElementById('transcode').value;
+            if (!url) return;
+            // if(!transcode) return;
             console.log('load url: ', url)
-            console.log('load transcode enable: ', transcode)
+            // console.log('load transcode enable: ', transcode)
             dp.switchVideo({url: url,});
         }
 
-        // document.getElementById("#loadBtn")
-        //     .addEventListener('click', function () {
-        //         loadVideoUrl();
-        //     }, false);
+        dp.on('error', function () {
+            // alert('load video error')
+            // try transcoding video to hls
+            if(isTranscoding === false) {
+                isTranscoding = true;
+                // start video stream transcode
+                var url = dp.video.url;
+                if(!url) {
+                    url = document.getElementById('url').value
+                }
+                axios({
+                    method: 'put',
+                    url: '/stream/hls/start?url=' + url
+                })
+                    .then(function (response) {
+                        // get video m3u8 url
+                        var rspData = response.data;
+                        console.log('rsp data', rspData);
+                        document.getElementById('transcodeUrl').value = rspData;
+                        // switch dplayer video src
+                        dp.video.type = 'hls'
+                        dp.switchVideo({url: rspData,type: 'hls'});
+                    });
+            }
+        });
+        dp.on('destroy', function () {
+            if (isTranscoding === true) {
+                // close video stream transcode
+                var url = dp.video.url;
+                if(!url) {
+                    url = document.getElementById('url').value
+                }
+                console.log('req close hls transcode stream for url: ', url)
+                axios({
+                    method: 'put',
+                    url: '/stream/hls/close?url=' + url
+                })
+            }
+        });
     </script>
 </div>
 </body>
