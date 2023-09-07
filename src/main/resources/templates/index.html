@@ -25,7 +25,9 @@
         </select>
     </div>
     <div>
-        <button type="submit" onclick="loadVideoUrl()">Load</button>
+        <button id="loadBtn" onclick="loadVideoUrl()">Load</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button id="unloadBtn" onclick="unload()">Unload</button>
     </div>
     <hr/>
     <p id="transcodeUrl"></p>
@@ -55,6 +57,7 @@
             } else {
                 startTranscoding();
             }
+            document.getElementById('loadBtn').disabled = true;
         }
 
         function startTranscoding() {
@@ -98,12 +101,19 @@
             }
         }
 
+        function unload() {
+            dp.destroy();
+            closeTranscoding();
+            document.getElementById('unloadBtn').disabled = true;
+        }
+
         dp.on('error', function () {
             // alert('load video error')
             // try transcoding video to hls
             console.log('dplayer error')
             startTranscoding();
         });
+
         dp.on('destroy', function () {
             closeTranscoding();
         });
