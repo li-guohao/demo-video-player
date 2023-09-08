@@ -56,7 +56,7 @@ public class MediaThread extends Thread {
         grabber.setOption("threads", "1");
         grabber.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
         // 设置缓存大小，提高画质、减少卡顿花屏
-        grabber.setOption("buffer_size", "1024000");
+        grabber.setOption("buffer_size", "2048000");
         try {
             grabber.start();
             grabberStatus = true;
@@ -142,7 +142,7 @@ public class MediaThread extends Thread {
             recorder.start();
             recorderStatus = true;
         } catch (FrameRecorder.Exception e) {
-            log.error("{} | 创建转码录制器异常！", originalUrl, e);
+            log.error("创建转码录制器异常！ | {}", originalUrl, e);
             startStatus = false;
             startMsg = "创建转码录制器失败！" + e.getMessage();
         }
@@ -152,14 +152,14 @@ public class MediaThread extends Thread {
 
     public void closeRecodeRecorder() {
         try {
-            log.info("{} | 关闭推流器……", originalUrl);
+            log.info("关闭推流器…… | {}", originalUrl);
             if (Objects.nonNull(recorder)) {
                 recorder.flush();
                 recorder.close();
             }
 
         } catch (IOException e) {
-            log.error("{} | 关闭推流器异常", originalUrl, e);
+            log.error("关闭推流器异常 | {}", originalUrl, e);
         }
     }
 
